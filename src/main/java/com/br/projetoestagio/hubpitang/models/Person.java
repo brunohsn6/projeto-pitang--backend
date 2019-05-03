@@ -1,5 +1,6 @@
 package com.br.projetoestagio.hubpitang.models;
 
+import com.br.projetoestagio.hubpitang.utils.Gender;
 import com.br.projetoestagio.hubpitang.utils.IObjectPersistent;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,11 +18,14 @@ public abstract class Person implements IObjectPersistent<Long> {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(name = "cl_apiID")
+    private Long apiID;
+
     @Column(name = "cl_name")
     private String name;
 
     @Column(name = "cl_height")
-    private float height;
+    private String height;
 
     @Column(name = "cl_born_city")
     private String born_city;
@@ -30,7 +34,7 @@ public abstract class Person implements IObjectPersistent<Long> {
     private String living_country;
 
     @Column(name = "gender")
-    private String gender;
+    private Gender gender;
 
 
     public Person() {

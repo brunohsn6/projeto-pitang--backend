@@ -43,7 +43,7 @@ public abstract class Program implements IObjectPersistent<Long> {
     private Set<Genre> genres;
 
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
     @JoinTable(name = "tb_program_actors",
             joinColumns = {@JoinColumn(name = "prog_cl_id")},
             inverseJoinColumns = {@JoinColumn(name = "act_cl_id")})

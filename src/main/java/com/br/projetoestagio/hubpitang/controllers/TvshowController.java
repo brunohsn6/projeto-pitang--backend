@@ -3,6 +3,7 @@ package com.br.projetoestagio.hubpitang.controllers;
 
 import com.br.projetoestagio.hubpitang.models.Tvshow;
 import com.br.projetoestagio.hubpitang.repositories.ITvshowRepository;
+import com.br.projetoestagio.hubpitang.utils.Initialization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,9 @@ public class TvshowController {
 
     @Autowired
     private ITvshowRepository iTvshowRepository;
+
+    @Autowired
+    private Initialization initialization;
 
     @GetMapping(path = "/")
     public ResponseEntity<?> getAll(){
@@ -71,5 +75,20 @@ public class TvshowController {
         }else{
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PostMapping(path = "/bypassinsert")
+    public ResponseEntity<?> bypassInsert(){
+        try{
+
+            this.initialization.parseTvshows();
+
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        }catch (Exception e){
+            System.out.println(e.getCause());
+            System.out.println(e.getStackTrace());
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
     }
 }
