@@ -1,12 +1,9 @@
 package com.br.projetoestagio.hubpitang.utils;
 
 import com.br.projetoestagio.hubpitang.models.*;
-import com.br.projetoestagio.hubpitang.repositories.IActorRepository;
-import com.br.projetoestagio.hubpitang.repositories.ITvshowRepository;
+import com.br.projetoestagio.hubpitang.repositories.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import dto.MovieDTO;
-import com.br.projetoestagio.hubpitang.repositories.IGenreRepository;
-import com.br.projetoestagio.hubpitang.repositories.IMovieRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.GenreValue;
 import org.codehaus.jettison.json.JSONArray;
@@ -17,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,6 +31,10 @@ public class Initialization {
     private ITvshowRepository tvshowRepository;
     @Autowired
     private IActorRepository actorRepository;
+    @Autowired
+    private IAuthorRepository authorRepository;
+    @Autowired
+    private IDirectorRepository directorRepository;
 
     private Value valueMovies;
 
@@ -126,6 +126,7 @@ public class Initialization {
                         }
                         new_movie.setCountryOrigin(origin_country);
                         new_movie.setLanguage(movie.getOriginal_language());
+                        new_movie.setBackdropPath(movie.getBackdrop_path());
 
                         for(Integer genre_id : movie.getGenre_ids()){
                             if(this.genreRepository.existsById(new Long(genre_id))){
@@ -135,8 +136,14 @@ public class Initialization {
                         new_movie.setGenres(new HashSet<>(genres));
                         this.movieRepository.save(new_movie);
                     }
+                    if(i == 5){
+                        break;
+                    }
+                    i++;
+
                 }
             }
+            Thread.sleep(1500);
 
         }catch (Exception e){
             System.out.println("An error ocurred at 'parseMovies'");
@@ -144,15 +151,6 @@ public class Initialization {
         }
 
 
-
-    }
-
-    public void parseGenres(){
-        for(Genre genre : this.mappedGenres){
-            if(!this.genreRepository.existsById(genre.getId())){
-                this.genreRepository.save(genre);
-            }
-        }
 
     }
 
@@ -167,6 +165,11 @@ public class Initialization {
             if(this.tvshowRepository.count() == 0){
 
                 for(int i = 0; i < jsonArray.length(); i++){
+
+                    if(i == 5){
+                        break;
+                    }
+
                     verify_requests();
                     Tvshow tvshow = new Tvshow();
                     id = this.jsonArray.getJSONObject(i).getInt("id");
@@ -194,12 +197,13 @@ public class Initialization {
 
                     tvshow.setDuration(serieObject.getJSONArray("episode_run_time").getString(0));
                     tvshow.setSeasons(serieObject.getInt("number_of_seasons"));
+                    tvshow.setBackdropPath(serieObject.getString("backdrop_path"));
                     System.out.println(jsonArray.getJSONObject(i));
 
                     this.tvshowRepository.save(tvshow);
                 }
             }
-
+            Thread.sleep(1500);
         }catch (Exception e){
             System.out.println("An error ocurred at 'parseTvshow'");
             System.out.println(e.getLocalizedMessage());
@@ -207,7 +211,7 @@ public class Initialization {
 
     }
 
-    public void parsePersons(){
+    public void parseMoviePersons(){
         try{
             Thread.sleep(1000);
 
@@ -223,9 +227,13 @@ public class Initialization {
                     verify_requests();
                     String jsonPersonsMovies = restTemplate.getForObject(baseUrl+"/movie/"+m.getId()+"/credits?api_key="+apikey+"&language="+language, String.class);
                     ArrayList<Actor> actors = new ArrayList<>();
+                    ArrayList<Director> directors = new ArrayList<>();
+                    ArrayList<Author> authors = new ArrayList<>();
+
                     qtd_of_requests++;
                     JSONObject actorsObject = new JSONObject(jsonPersonsMovies);
                     JSONArray actorsArray = actorsObject.getJSONArray("cast");
+                    JSONArray crewMovieArray = actorsObject.getJSONArray("crew");
                     System.out.println("********** "+m.getTitle()+" **********");
 
                     for(int i = 0; i < 5; i++){
@@ -238,27 +246,7 @@ public class Initialization {
 
                         actor = this.actorRepository.findActorByApiID(new Long(id));
                         if(actor == null){
-                            actor = new Actor();
-
-                            System.out.println(id);
-                            actor.setApiID(new Long(id));
-
-                            System.out.println(actorsArray.getJSONObject(i).getString("name"));
-                            actor.setName(actorsArray.getJSONObject(i).getString("name"));
-
-                            System.out.println(personsObject.getString("place_of_birth"));
-                            actor.setBorn_city(personsObject.getString("place_of_birth"));
-
-                            System.out.println(Gender.values()[personsObject.getInt("gender")]);
-                            actor.setGender(Gender.values()[personsObject.getInt("gender")]);
-
-
-                            String height = getHeight(actor.getName());
-                            if(height.contains(",")){
-                                actor.setHeight(height);
-                            }
-
-                            System.out.println(height);
+                            actor = setActor(actorsArray.getJSONObject(i), personsObject, id);
 
                             System.out.println();
                         }
@@ -267,6 +255,46 @@ public class Initialization {
 
                     }
                     Thread.sleep(1000);
+                    int tam = 10;
+                    if(crewMovieArray.length() < tam){
+                        tam = crewMovieArray.length();
+                    }
+
+                    for(int i = 0; i < tam; i++){
+                        id = crewMovieArray.getJSONObject(i).getInt("id");
+                        verify_requests();
+                        jsonPersons = restTemplate.getForObject(baseUrl+"/person/"+id+"?api_key="+apikey+"&language="+language, String.class);
+                        qtd_of_requests++;
+
+
+                        if(crewMovieArray.getJSONObject(i).getString("department").toLowerCase().contains("writing")){
+                            Author author = this.authorRepository.findAuthorByApiID(new Long(id));
+                            if(author == null){
+                                personsObject = new JSONObject(jsonPersons);
+                                author = setAuthor(crewMovieArray.getJSONObject(i), personsObject, i);
+
+                                System.out.println();
+                                authors.add(author);
+
+                            }
+                            authors.add(author);
+                        }
+
+                        if(crewMovieArray.getJSONObject(i).getString("department").toLowerCase().contains("directing")){
+                            Director director = this.directorRepository.findDirectorByApiID(new Long(id));
+                            if(director == null){
+                                personsObject = new JSONObject(jsonPersons);
+                                director = setDirector(crewMovieArray.getJSONObject(i), personsObject, i);
+
+                            }
+                            directors.add(director);
+                        }
+
+                    }
+
+
+                    m.setDirectors(directors);
+                    m.setAuthors(authors);
                     m.setActors(actors);
                     this.movieRepository.save(m);
 
@@ -277,8 +305,17 @@ public class Initialization {
 
 
         }catch (Exception e){
-            System.out.println("An error ocurred at 'parsePersons'");
+            System.out.println("An error ocurred at 'parseMoviePersons'");
             System.out.println(e.getLocalizedMessage());
+        }
+
+    }
+
+    public void parseGenres(){
+        for(Genre genre : this.mappedGenres){
+            if(!this.genreRepository.existsById(genre.getId())){
+                this.genreRepository.save(genre);
+            }
         }
 
     }
@@ -292,10 +329,16 @@ public class Initialization {
         for(Tvshow tvshow : this.tvshowRepository.findAll()){
             verify_requests();
             String jsonPersonsTvshows = restTemplate.getForObject(baseUrl+"/tv/"+tvshow.getId()+"/credits?api_key="+apikey+"&language="+language, String.class);
+
             ArrayList<Actor> actors = new ArrayList<>();
+            ArrayList<Author> authors = new ArrayList<>();
+            ArrayList<Director> directors = new ArrayList<>();
             qtd_of_requests++;
+
             JSONObject actorsObject = new JSONObject(jsonPersonsTvshows);
             JSONArray actorsArray = actorsObject.getJSONArray("cast");
+            JSONArray crewArray = actorsObject.getJSONArray("crew");
+
             System.out.println("********** "+tvshow.getTitle()+" **********");
             int tam =5;
             if(actorsArray.length() < tam){
@@ -307,30 +350,10 @@ public class Initialization {
                 jsonPersons = restTemplate.getForObject(baseUrl+"/person/"+id+"?api_key="+apikey+"&language="+language, String.class);
                 qtd_of_requests++;
                 personsObject = new JSONObject(jsonPersons);
-                Actor actor;
 
-                actor = this.actorRepository.findActorByApiID(new Long(id));
+                Actor actor = this.actorRepository.findActorByApiID(new Long(id));
                 if(actor == null){
-                    actor = new Actor();
-
-                    System.out.println(id);
-                    actor.setApiID(new Long(id));
-
-                    System.out.println(actorsArray.getJSONObject(i).getString("name"));
-                    actor.setName(actorsArray.getJSONObject(i).getString("name"));
-
-                    System.out.println(personsObject.getString("place_of_birth"));
-                    actor.setBorn_city(personsObject.getString("place_of_birth"));
-
-                    System.out.println(Gender.values()[personsObject.getInt("gender")]);
-                    actor.setGender(Gender.values()[personsObject.getInt("gender")]);
-
-                    String height = getHeight(actor.getName());
-                    if(height.contains(",")){
-                        actor.setHeight(height);
-                    }
-
-                    System.out.println(height);
+                    actor = setActor(actorsArray.getJSONObject(i), personsObject, id);
 
 
                     System.out.println();
@@ -340,17 +363,126 @@ public class Initialization {
 
             }
             Thread.sleep(1000);
+
+            tam = 10;
+            if(crewArray.length() < tam){
+                tam = crewArray.length();
+            }
+
+            for(int i = 0; i < tam; i++){
+                id = crewArray.getJSONObject(i).getInt("id");
+                verify_requests();
+                jsonPersons = restTemplate.getForObject(baseUrl+"/person/"+id+"?api_key="+apikey+"&language="+language, String.class);
+                qtd_of_requests++;
+
+
+                if(crewArray.getJSONObject(i).getString("department").toLowerCase().contains("writing")){
+                    Author author = this.authorRepository.findAuthorByApiID(new Long(id));
+                    if(author == null){
+                        personsObject = new JSONObject(jsonPersons);
+                        author = setAuthor(crewArray.getJSONObject(i), personsObject, i);
+
+                        System.out.println();
+                        authors.add(author);
+
+                    }
+                    authors.add(author);
+                }
+
+                if(crewArray.getJSONObject(i).getString("department").toLowerCase().contains("directing")){
+                    Director director = this.directorRepository.findDirectorByApiID(new Long(id));
+                    if(director == null){
+                        personsObject = new JSONObject(jsonPersons);
+                        director = setDirector(crewArray.getJSONObject(i), personsObject, i);
+
+                    }
+                    directors.add(director);
+                }
+
+
+            }
+
             tvshow.setActors(actors);
+            tvshow.setAuthors(authors);
+            tvshow.setDirectors(directors);
             this.tvshowRepository.save(tvshow);
         }
     }
 
-    public void verify_requests() throws InterruptedException{
-        if(qtd_of_requests == 4){
-            qtd_of_requests = 0;
-            Thread.sleep(500);
+    public Actor setActor(JSONObject jsonObject, JSONObject personsObject, int id){
+        Actor actor = new Actor();
+        try{
+            System.out.println(id);
+            actor.setApiID(new Long(id));
+
+            System.out.println(jsonObject.getString("name"));
+            actor.setName(jsonObject.getString("name"));
+
+            System.out.println(personsObject.getString("place_of_birth"));
+            actor.setBorn_city(personsObject.getString("place_of_birth"));
+
+            System.out.println(Gender.values()[personsObject.getInt("gender")]);
+            actor.setGender(Gender.values()[personsObject.getInt("gender")]);
+
+            System.out.println(jsonObject.getString("profile_path"));
+            actor.setProfile_path(jsonObject.getString("profile_path"));
+
+            String height = getHeight(actor.getName());
+            if(height.contains(",")){
+                actor.setHeight(height);
+            }
+            System.out.println(height);
+
+            return actor;
+        }catch (Exception e){
+            System.out.println("An error ocurred at 'setActor'");
+            System.out.println(e.getLocalizedMessage());
+            e.printStackTrace();
         }
 
+        return actor;
+    }
+
+    public void verify_requests() throws InterruptedException{
+        if(qtd_of_requests == 3){
+            qtd_of_requests = 0;
+            Thread.sleep(1000);
+        }
+
+    }
+
+    public Author setAuthor(JSONObject jsonObject, JSONObject personsObject, int id){
+        Author author = new Author();
+        try{
+
+            System.out.println(id);
+            author.setApiID(new Long(id));
+
+            author.setName(jsonObject.getString("name"));
+            System.out.println(jsonObject.getString("name"));
+
+            author.setBorn_city(personsObject.getString("place_of_birth"));
+            System.out.println(personsObject.getString("place_of_birth"));
+
+            author.setGender(Gender.values()[personsObject.getInt("gender")]);
+            System.out.println(Gender.values()[personsObject.getInt("gender")]);
+
+            System.out.println(jsonObject.getString("profile_path"));
+            author.setProfile_path(jsonObject.getString("profile_path"));
+
+            String height = getHeight(author.getName());
+            if(height.contains(",")){
+                author.setHeight(height);
+            }
+            System.out.println(height);
+        }catch (Exception e){
+            System.out.println("An error ocurred at 'setAuthor'");
+            System.out.println(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+
+
+        return author;
     }
 
     public String getHeight(String name){
@@ -376,5 +508,41 @@ public class Initialization {
         return "";
 
     }
+
+    private Director setDirector(JSONObject jsonObject, JSONObject personsObject, int id){
+        Director director = new Director();
+
+        try {
+            director.setApiID(new Long(id));
+            System.out.println(id);
+
+            System.out.println(jsonObject.getString("name"));
+            director.setName(jsonObject.getString("name"));
+
+            System.out.println(Gender.values()[personsObject.getInt("gender")]);
+            director.setGender(Gender.values()[personsObject.getInt("gender")]);
+
+            System.out.println(personsObject.getString("place_of_birth"));
+            director.setBorn_city(personsObject.getString("place_of_birth"));
+
+            System.out.println(jsonObject.getString("profile_path"));
+            director.setProfile_path(jsonObject.getString("profile_path"));
+
+            String height = getHeight(director.getName());
+            if(height.contains(",")){
+                director.setHeight(height);
+            }
+            System.out.println(height);
+
+        }catch (Exception e){
+            System.out.println("An error ocurred at 'setAuthor'");
+            System.out.println(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+
+
+        return director;
+    }
+
 }
 

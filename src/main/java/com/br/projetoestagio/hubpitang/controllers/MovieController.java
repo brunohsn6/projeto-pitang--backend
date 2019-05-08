@@ -6,6 +6,8 @@ import com.br.projetoestagio.hubpitang.repositories.IGenreRepository;
 import com.br.projetoestagio.hubpitang.repositories.IMovieRepository;
 import com.br.projetoestagio.hubpitang.utils.Initialization;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,7 @@ import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/movies")
+@CrossOrigin(origins = "http://localhost:4200")
 public class MovieController {
 
     @Autowired
@@ -91,5 +94,22 @@ public class MovieController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
+    }
+
+    @PostMapping(path = "/deleteById")
+    public boolean deleteActor(@RequestParam Long movieId, @RequestParam Long actorId){
+        Movie m = this.movieRepository.findMovieById(movieId);
+        if(m != null){
+            for(int i = 0; i < m.getActors().size(); i++){
+                if(m.getActors().get(i).getId() == actorId){
+                    m.getActors().remove(i);
+                    break;
+                }
+            }
+            this.movieRepository.save(m);
+            return true;
+        }
+
+        return false;
     }
 }

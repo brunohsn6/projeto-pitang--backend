@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("directors")
+@CrossOrigin(origins = "http://localhost:4200")
 public class DirectorController {
     @Autowired
     private IDirectorRepository directorRepository;

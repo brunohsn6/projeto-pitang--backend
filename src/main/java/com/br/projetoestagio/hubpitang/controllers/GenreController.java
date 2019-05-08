@@ -7,12 +7,14 @@ import com.br.projetoestagio.hubpitang.utils.Initialization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("genres")
+@CrossOrigin(origins = "http://localhost:4200")
 public class GenreController {
 
     @Autowired
@@ -67,7 +69,10 @@ public class GenreController {
     public ResponseEntity<?> delete (@RequestParam("id") Long id){
         if(this.genreRepository.existsById(id)){
             try{
+                this.genreRepository.deleteGenre(id);
                 this.genreRepository.deleteById(id);
+//                this.genreRepository.deleteGenreById(id);
+
                 return new ResponseEntity<>(HttpStatus.OK);
             }catch (Exception e){
                 return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);

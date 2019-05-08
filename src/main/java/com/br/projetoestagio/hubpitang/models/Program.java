@@ -1,6 +1,8 @@
 package com.br.projetoestagio.hubpitang.models;
 
 import com.br.projetoestagio.hubpitang.utils.IObjectPersistent;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,28 +39,23 @@ public abstract class Program implements IObjectPersistent<Long> {
     @Column(name = "cl_duration")
     private String duration;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "tb_program_genres", joinColumns = {@JoinColumn(name = "prog_cl_id")},
-            inverseJoinColumns = @JoinColumn(name = "gen_cl_id"))
+    @Column(name = "cl_backdrop_path")
+    private String backdropPath;
+
+    @JsonManagedReference
+    @ManyToMany(mappedBy = "programs", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private Set<Genre> genres;
 
-
-    @ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
-    @JoinTable(name = "tb_program_actors",
-            joinColumns = {@JoinColumn(name = "prog_cl_id")},
-            inverseJoinColumns = {@JoinColumn(name = "act_cl_id")})
+    @JsonManagedReference
+    @ManyToMany(mappedBy = "programs",cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<Actor>actors;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "tb_program_authors",
-            joinColumns = {@JoinColumn(name = "prog_cl_id")},
-            inverseJoinColumns = {@JoinColumn(name = "aut_cl_id")})
+    @JsonManagedReference
+    @ManyToMany(mappedBy = "programs", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<Author>authors;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "tb_program_directors",
-            joinColumns = {@JoinColumn(name = "prog_cl_id")},
-            inverseJoinColumns = {@JoinColumn(name = "dir_cl_id")})
+    @JsonManagedReference
+    @ManyToMany(mappedBy = "programs", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<Director>directors;
 
 

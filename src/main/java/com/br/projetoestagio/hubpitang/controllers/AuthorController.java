@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/authors")
+@CrossOrigin(origins = "http://localhost:4200")
 public class AuthorController {
 
     @Autowired

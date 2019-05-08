@@ -1,6 +1,7 @@
 package com.br.projetoestagio.hubpitang.models;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,8 +15,11 @@ import java.util.List;
 @Setter
 public class Director extends Person{
 
-    @JsonIgnore
-    @ManyToMany(targetEntity = Program.class, mappedBy = "directors")
+    @JsonBackReference
+    @ManyToMany(targetEntity = Program.class, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @JoinTable(name = "tb_program_directors",
+            joinColumns = {@JoinColumn(name = "dir_cl_id")},
+            inverseJoinColumns = {@JoinColumn(name = "prog_cl_id")})
     private List<Program> programs;
 
 

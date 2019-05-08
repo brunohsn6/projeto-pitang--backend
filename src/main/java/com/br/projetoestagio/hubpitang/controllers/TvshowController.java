@@ -5,6 +5,8 @@ import com.br.projetoestagio.hubpitang.models.Tvshow;
 import com.br.projetoestagio.hubpitang.repositories.ITvshowRepository;
 import com.br.projetoestagio.hubpitang.utils.Initialization;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,7 @@ import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/tvshows")
+@CrossOrigin(origins = "http://localhost:4200")
 public class TvshowController {
 
     @Autowired

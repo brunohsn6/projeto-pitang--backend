@@ -21,10 +21,10 @@ public class HubPitangApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        this.initialization.parseGenres();
-        this.initialization.parseTvshows();
-        this.initialization.parseMovies();
-        this.initialization.parsePersons();
-        this.initialization.ParsePersonTvshows();
+//        this.initialization.parseGenres();
+//        this.initialization.parseTvshows();
+//        this.initialization.parseMovies();
+//        this.initialization.parseMoviePersons();
+//        this.initialization.ParsePersonTvshows();
     }
 }

@@ -36,6 +36,9 @@ public abstract class Person implements IObjectPersistent<Long> {
     @Column(name = "gender")
     private Gender gender;
 
+    @Column(name = "cl_profile_path")
+    private String profile_path;
+
 
     public Person() {
     }

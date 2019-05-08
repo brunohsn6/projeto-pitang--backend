@@ -3,6 +3,7 @@ package com.br.projetoestagio.hubpitang.controllers;
 import com.br.projetoestagio.hubpitang.Service.ActorService;
 import com.br.projetoestagio.hubpitang.models.Actor;
 import com.br.projetoestagio.hubpitang.models.Person;
+import com.br.projetoestagio.hubpitang.models.Program;
 import com.br.projetoestagio.hubpitang.repositories.IActorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/actors")
+@CrossOrigin(origins = "http://localhost:4200")
 public class ActorController {
 
     @Autowired
@@ -68,6 +70,7 @@ public class ActorController {
     public ResponseEntity<?> delete (@RequestParam("id") Long id){
         if(this.actorRepository.existsById(id)){
             try{
+                this.actorRepository.deleteActorsOcurrencies(id);
                 this.actorRepository.deleteById(id);
                 return new ResponseEntity<>(HttpStatus.OK);
             }catch (Exception e){
@@ -76,6 +79,19 @@ public class ActorController {
         }else{
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PostMapping(path = "/deleteGambiarra")
+    public boolean deleteAlternativo(@RequestParam Long id){
+        Actor a = this.actorRepository.findActorById(id);
+
+        for(Program p : a.getPrograms()){
+            a.getPrograms().remove(p);
+        }
+        this.actorRepository.save(a);
+        this.actorRepository.deleteById(id);
+        return true;
+
     }
 
 

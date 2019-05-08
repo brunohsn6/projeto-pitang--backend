@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IDirectorRepository extends JpaRepository<Director, Long> {
+    public Director findDirectorByApiID(Long id);
     public Director findDirectorById(Long id);
 }
