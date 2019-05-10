@@ -136,9 +136,9 @@ public class Initialization {
                         new_movie.setGenres(new HashSet<>(genres));
                         this.movieRepository.save(new_movie);
                     }
-                    if(i == 5){
-                        break;
-                    }
+//                    if(i == 5){
+//                        break;
+//                    }
                     i++;
 
                 }
@@ -166,9 +166,9 @@ public class Initialization {
 
                 for(int i = 0; i < jsonArray.length(); i++){
 
-                    if(i == 5){
-                        break;
-                    }
+//                    if(i == 5){
+//                        break;
+//                    }
 
                     verify_requests();
                     Tvshow tvshow = new Tvshow();

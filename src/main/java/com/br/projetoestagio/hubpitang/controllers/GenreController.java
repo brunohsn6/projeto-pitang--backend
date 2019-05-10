@@ -65,8 +65,8 @@ public class GenreController {
         }
     }
 
-    @DeleteMapping(path = "/delete/{id}")
-    public ResponseEntity<?> delete (@RequestParam("id") Long id){
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<?> delete (@PathVariable Long id){
         if(this.genreRepository.existsById(id)){
             try{
                 this.genreRepository.deleteGenre(id);

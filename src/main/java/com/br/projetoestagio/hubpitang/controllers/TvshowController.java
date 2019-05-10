@@ -80,8 +80,8 @@ public class TvshowController {
         }
     }
 
-    @DeleteMapping(path = "/delete/{id}")
-    public ResponseEntity<?> delete (@RequestParam("id") Long id){
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<?> delete (@PathVariable Long id){
         if(this.iTvshowRepository.existsById(id)){
             try{
                 this.iTvshowRepository.deleteById(id);

@@ -2,11 +2,13 @@ package com.br.projetoestagio.hubpitang.controllers;
 
 import com.br.projetoestagio.hubpitang.models.Author;
 import com.br.projetoestagio.hubpitang.repositories.IAuthorRepository;
+import com.br.projetoestagio.hubpitang.utils.AuthorSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 @RestController
@@ -37,6 +39,18 @@ public class AuthorController {
         }
     }
 
+    @GetMapping(path = "/getByFiltering")
+    public ResponseEntity<?> filterAuthors(@RequestParam(required = false) String name){
+        try{
+            List<Author> filteredList= this.authorRepository.findAll(AuthorSpecification.searchAuthor(name));
+            return new ResponseEntity<>(filteredList, HttpStatus.OK);
+        }catch (Exception e){
+            System.out.println(e.getStackTrace());
+            System.out.println(e.getLocalizedMessage());
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+
     @PostMapping(path = "/save")
     public ResponseEntity<?> insert(@RequestBody Author author){
         try{
@@ -59,10 +73,11 @@ public class AuthorController {
         }
     }
 
-    @DeleteMapping(path = "/delete/{id}")
-    public ResponseEntity<?> delete (@RequestParam("id") Long id){
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<?> delete (@PathVariable Long id){
         if(this.authorRepository.existsById(id)){
             try{
+                this.authorRepository.deleteAuthorsOcurrencies(id);
                 this.authorRepository.deleteById(id);
                 return new ResponseEntity<>(HttpStatus.OK);
             }catch (Exception e){

@@ -1,13 +1,17 @@
 package com.br.projetoestagio.hubpitang.controllers;
 
+import com.br.projetoestagio.hubpitang.models.Actor;
 import com.br.projetoestagio.hubpitang.models.Director;
 import com.br.projetoestagio.hubpitang.repositories.IActorRepository;
 import com.br.projetoestagio.hubpitang.repositories.IDirectorRepository;
+import com.br.projetoestagio.hubpitang.utils.ActorSpecification;
+import com.br.projetoestagio.hubpitang.utils.DirectorSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 @RestController
@@ -37,6 +41,18 @@ public class DirectorController {
         }
     }
 
+    @GetMapping(path = "/getByFiltering")
+    public ResponseEntity<?> filterDirectors(@RequestParam(required = false) String name){
+        try{
+            List<Director> filteredList= this.directorRepository.findAll(DirectorSpecification.searchDirector(name));
+            return new ResponseEntity<>(filteredList, HttpStatus.OK);
+        }catch (Exception e){
+            System.out.println(e.getStackTrace());
+            System.out.println(e.getLocalizedMessage());
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+
     @PostMapping(path = "/save")
     public ResponseEntity<?> insert(@RequestBody Director director){
         try{
@@ -59,10 +75,11 @@ public class DirectorController {
         }
     }
 
-    @DeleteMapping(path = "/delete/{id}")
-    public ResponseEntity<?> delete (@RequestParam("id") Long id){
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<?> delete (@PathVariable Long id){
         if(this.directorRepository.existsById(id)){
             try{
+                this.directorRepository.deleteDirectorsOcurrencies(id);
                 this.directorRepository.deleteById(id);
                 return new ResponseEntity<>(HttpStatus.OK);
             }catch (Exception e){

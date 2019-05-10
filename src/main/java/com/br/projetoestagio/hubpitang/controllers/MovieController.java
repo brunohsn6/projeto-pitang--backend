@@ -73,20 +73,20 @@ public class MovieController {
         }
     }
 
-    @PutMapping(path = "/update")
-    public ResponseEntity<?> update(@RequestBody Movie movie){
+    @PutMapping(path = "/update/{id}")
+    public ResponseEntity<?> update(@RequestBody Movie movie, @PathVariable Long id){
         try{
-            Movie searchedDirector = this.movieRepository.findMovieById(movie.getId());
+            Movie searchedDirector = this.movieRepository.findMovieById(id);
             movie.setId(searchedDirector.getId());
-//            this.movieRepository.save(movie);
+            this.movieRepository.save(movie);
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
     }
 
-    @DeleteMapping(path = "/delete/{id}")
-    public ResponseEntity<?> delete (@PathVariable("id") Long id){
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<?> delete (@PathVariable Long id){
         if(this.movieRepository.existsById(id)){
             try{
                 //this.movieRepository.deleteById(id);
