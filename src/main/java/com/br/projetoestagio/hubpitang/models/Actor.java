@@ -16,10 +16,7 @@ import java.util.List;
 public class Actor extends Person{
 
     @JsonBackReference
-    @ManyToMany(targetEntity = Program.class, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
-    @JoinTable(name = "tb_program_actors",
-            joinColumns = {@JoinColumn(name = "act_cl_id")},
-            inverseJoinColumns = {@JoinColumn(name = "prog_cl_id")})
+    @ManyToMany(mappedBy = "actors",cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<Program> programs;
 
 

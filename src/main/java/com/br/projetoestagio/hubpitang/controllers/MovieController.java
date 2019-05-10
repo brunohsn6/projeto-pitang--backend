@@ -5,6 +5,7 @@ import com.br.projetoestagio.hubpitang.models.Movie;
 import com.br.projetoestagio.hubpitang.repositories.IGenreRepository;
 import com.br.projetoestagio.hubpitang.repositories.IMovieRepository;
 import com.br.projetoestagio.hubpitang.utils.Initialization;
+import com.br.projetoestagio.hubpitang.utils.MovieSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.websocket.server.PathParam;
+import java.util.List;
 import java.util.logging.Logger;
 
 @RestController
@@ -35,13 +39,27 @@ public class MovieController {
         }
     }
 
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<?> getById(@RequestParam Long id){
+    @GetMapping(path = "/getById")
+    public ResponseEntity<?> getById(@RequestParam("id") Long id){
         try{
-            return new ResponseEntity<>(this.movieRepository.findById(id), HttpStatus.OK);
+            return new ResponseEntity<>(this.movieRepository.findMovieById(id), HttpStatus.OK);
         }catch (Exception e){
             Logger.getLogger(e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping(path = "/getByFiltering")
+    public ResponseEntity<?> filterMovies(@RequestParam(required = false) String title,
+                                          @RequestParam(required = false) String year,
+                                          @RequestParam(required = false) String language){
+        try{
+            List<Movie> filteredList= this.movieRepository.findAll(MovieSpecification.searchMovie(title, year, language));
+            return new ResponseEntity<>(filteredList, HttpStatus.OK);
+        }catch (Exception e){
+            System.out.println(e.getStackTrace());
+            System.out.println(e.getLocalizedMessage());
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
     }
 
@@ -56,22 +74,22 @@ public class MovieController {
     }
 
     @PutMapping(path = "/update")
-    public ResponseEntity<?> update(@RequestBody Movie movie, @RequestParam Long id){
+    public ResponseEntity<?> update(@RequestBody Movie movie){
         try{
-            Movie searchedDirector = this.movieRepository.findMovieById(id);
+            Movie searchedDirector = this.movieRepository.findMovieById(movie.getId());
             movie.setId(searchedDirector.getId());
-
-            return new ResponseEntity<>(this.movieRepository.save(movie), HttpStatus.ACCEPTED);
+//            this.movieRepository.save(movie);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
     }
 
     @DeleteMapping(path = "/delete/{id}")
-    public ResponseEntity<?> delete (@RequestParam("id") Long id){
+    public ResponseEntity<?> delete (@PathVariable("id") Long id){
         if(this.movieRepository.existsById(id)){
             try{
-                this.movieRepository.deleteById(id);
+                //this.movieRepository.deleteById(id);
                 return new ResponseEntity<>(HttpStatus.OK);
             }catch (Exception e){
                 return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
@@ -80,6 +98,8 @@ public class MovieController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+
 
     @PostMapping(path = "/bypassinsert")
     public ResponseEntity<?> bypassInsert(){
@@ -95,6 +115,8 @@ public class MovieController {
         }
 
     }
+
+
 
     @PostMapping(path = "/deleteById")
     public boolean deleteActor(@RequestParam Long movieId, @RequestParam Long actorId){

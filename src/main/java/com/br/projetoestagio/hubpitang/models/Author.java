@@ -3,6 +3,7 @@ package com.br.projetoestagio.hubpitang.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,11 +16,9 @@ import java.util.List;
 @Getter @Setter
 public class Author extends Person {
 
+
     @JsonBackReference
-    @ManyToMany(targetEntity = Program.class, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
-    @JoinTable(name = "tb_program_authors",
-            joinColumns = {@JoinColumn(name = "aut_cl_id")},
-            inverseJoinColumns = {@JoinColumn(name = "prog_cl_id")})
+    @ManyToMany(mappedBy = "authors", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<Program> programs;
 
     public Author() {

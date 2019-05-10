@@ -4,13 +4,13 @@ package com.br.projetoestagio.hubpitang.controllers;
 import com.br.projetoestagio.hubpitang.models.Tvshow;
 import com.br.projetoestagio.hubpitang.repositories.ITvshowRepository;
 import com.br.projetoestagio.hubpitang.utils.Initialization;
+import com.br.projetoestagio.hubpitang.utils.TvshowSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 @RestController
@@ -41,6 +41,20 @@ public class TvshowController {
         }catch (Exception e){
             Logger.getLogger(e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping(path = "/getByFiltering")
+    public ResponseEntity<?> filterTvshows(@RequestParam(required = false) String title,
+                                          @RequestParam(required = false) String year,
+                                          @RequestParam(required = false) String language){
+        try{
+            List<Tvshow> filteredList= this.iTvshowRepository.findAll(TvshowSpecification.searchTvshow(title, year, language));
+            return new ResponseEntity<>(filteredList, HttpStatus.OK);
+        }catch (Exception e){
+            System.out.println(e.getStackTrace());
+            System.out.println(e.getLocalizedMessage());
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
     }
 

@@ -43,19 +43,30 @@ public abstract class Program implements IObjectPersistent<Long> {
     private String backdropPath;
 
     @JsonManagedReference
-    @ManyToMany(mappedBy = "programs", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @ManyToMany(targetEntity = Genre.class, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @JoinTable(name = "tb_program_genres", joinColumns = {@JoinColumn(name = "prog_cl_id")},
+            inverseJoinColumns = @JoinColumn(name = "gen_cl_id"))
     private Set<Genre> genres;
 
     @JsonManagedReference
-    @ManyToMany(mappedBy = "programs",cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @ManyToMany(targetEntity = Actor.class, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @JoinTable(name = "tb_program_actors",
+            joinColumns = {@JoinColumn(name = "prog_cl_id")},
+            inverseJoinColumns = {@JoinColumn(name = "act_cl_id")})
     private List<Actor>actors;
 
     @JsonManagedReference
-    @ManyToMany(mappedBy = "programs", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @ManyToMany(targetEntity = Author.class, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @JoinTable(name = "tb_program_authors",
+            joinColumns = {@JoinColumn(name = "prog_cl_id")},
+            inverseJoinColumns = {@JoinColumn(name = "aut_cl_id")})
     private List<Author>authors;
 
     @JsonManagedReference
-    @ManyToMany(mappedBy = "programs", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @ManyToMany(targetEntity = Director.class, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @JoinTable(name = "tb_program_directors",
+            joinColumns = {@JoinColumn(name = "prog_cl_id")},
+            inverseJoinColumns = {@JoinColumn(name = "dir_cl_id")})
     private List<Director>directors;
 
 

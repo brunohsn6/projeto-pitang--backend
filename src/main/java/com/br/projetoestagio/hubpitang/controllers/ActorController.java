@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.Query;
+import java.sql.PreparedStatement;
 import java.util.logging.Logger;
 
 @RestController
@@ -70,6 +72,7 @@ public class ActorController {
     public ResponseEntity<?> delete (@RequestParam("id") Long id){
         if(this.actorRepository.existsById(id)){
             try{
+
                 this.actorRepository.deleteActorsOcurrencies(id);
                 this.actorRepository.deleteById(id);
                 return new ResponseEntity<>(HttpStatus.OK);
