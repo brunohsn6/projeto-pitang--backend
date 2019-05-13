@@ -65,8 +65,8 @@ public class Initialization {
             String jsonMovies = restTemplate.getForObject(baseUrl+"discover/movie?api_key="+apikey+"&language="+language, String.class);
             String jsonGenresMovies = restTemplate.getForObject(baseUrl+"genre/movie/list?api_key="+apikey+"&language="+language, String.class);
             String jsonGenresTvshows = restTemplate.getForObject(baseUrl+"genre/tv/list?api_key="+apikey+"&language="+language, String.class);
-            String jsonTvshows = restTemplate.getForObject(baseUrl+"discover/tv?api_key="+apikey+"&language="+language, String.class);
-
+            String jsonTvshowsp1 = restTemplate.getForObject(baseUrl+"discover/tv?api_key="+apikey+"&language="+language, String.class);
+            String jsonTvshowsp2 = restTemplate.getForObject(baseUrl+"discover/tv?api_key="+apikey+"&language="+language+"&page=2", String.class);
 
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -78,8 +78,10 @@ public class Initialization {
             GenreValue genreTvshows = objectMapper.readValue(jsonGenresTvshows, GenreValue.class);
             this.mappedGenres.addAll(objectMapper.convertValue(genreTvshows.getGenres(), new TypeReference<ArrayList<Genre>>() {}));
 
-            JSONObject jobject = new JSONObject(jsonTvshows);
-            jsonArray = jobject.getJSONArray("results");
+            JSONObject jobjectp1 = new JSONObject(jsonTvshowsp1);
+            JSONObject jobjectp2 = new JSONObject(jsonTvshowsp2);
+            jsonArray = concatArray(jobjectp1.getJSONArray("results"), jobjectp2.getJSONArray("results"));
+
             Thread.sleep(1000);
 
 
@@ -88,6 +90,17 @@ public class Initialization {
             System.out.println(e.getLocalizedMessage());
             e.printStackTrace();
         }
+    }
+
+    private JSONArray concatArray(JSONArray arr1, JSONArray arr2) throws JSONException {
+        JSONArray result = new JSONArray();
+        for (int i = 0; i < arr1.length(); i++) {
+            result.put(arr1.get(i));
+        }
+        for (int i = 0; i < arr2.length(); i++) {
+            result.put(arr2.get(i));
+        }
+        return result;
     }
 
     public void parseMovies() {
@@ -159,6 +172,7 @@ public class Initialization {
 
             ObjectMapper om = new ObjectMapper();
             RestTemplate rst = new RestTemplate();
+            String list;
             int id = 0;
             this.tvshows = new ArrayList<>();
 
@@ -166,9 +180,7 @@ public class Initialization {
 
                 for(int i = 0; i < jsonArray.length(); i++){
 
-//                    if(i == 5){
-//                        break;
-//                    }
+
 
                     verify_requests();
                     Tvshow tvshow = new Tvshow();
@@ -178,12 +190,21 @@ public class Initialization {
                     System.out.println(serieObject);
 
                     tvshow.setTitle(this.jsonArray.getJSONObject(i).getString("name"));
+                    if(tvshow.getTitle().equalsIgnoreCase("kenja no mago")){
+                        System.out.println("next!!!************");
+                    }
+
                     tvshow.setId(this.jsonArray.getJSONObject(i).getLong("id"));
                     tvshow.setDescription(this.jsonArray.getJSONObject(i).getString("overview"));
                     tvshow.setLanguage(this.jsonArray.getJSONObject(i).getString("original_language"));
                     tvshow.setRelease_year(this.jsonArray.getJSONObject(i).getString("first_air_date"));
-                    String list = om.convertValue(this.jsonArray.getJSONObject(i)
-                            .getJSONArray("origin_country").getString(0), String.class);
+                    list = "";
+                    if(this.jsonArray.getJSONObject(i)
+                            .getJSONArray("origin_country").length() > 0){
+                        list = om.convertValue(this.jsonArray.getJSONObject(i)
+                                .getJSONArray("origin_country").getString(0), String.class);
+                    }
+
                     tvshow.setCountryOrigin(list);
 
                     ArrayList<Genre> genres = new ArrayList<>();
@@ -198,7 +219,7 @@ public class Initialization {
                     tvshow.setDuration(serieObject.getJSONArray("episode_run_time").getString(0));
                     tvshow.setSeasons(serieObject.getInt("number_of_seasons"));
                     tvshow.setBackdropPath(serieObject.getString("backdrop_path"));
-                    System.out.println(jsonArray.getJSONObject(i));
+                    //System.out.println(jsonArray.getJSONObject(i));
 
                     this.tvshowRepository.save(tvshow);
                 }
