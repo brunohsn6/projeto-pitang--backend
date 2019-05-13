@@ -30,7 +30,6 @@ public class ActorController {
     @GetMapping(path = "/")
     public ResponseEntity<?> getAll(){
         try{
-//            System.out.println("antes do sucesso");
             return new ResponseEntity<>(this.actorRepository.findAll(), HttpStatus.OK);
         }catch (Exception e){
             Logger.getLogger(e.getMessage());
@@ -100,21 +99,6 @@ public class ActorController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
-    @PostMapping(path = "/deleteGambiarra")
-    public boolean deleteAlternativo(@RequestParam Long id){
-        Actor a = this.actorRepository.findActorById(id);
-
-        for(Program p : a.getPrograms()){
-            a.getPrograms().remove(p);
-        }
-        this.actorRepository.save(a);
-        this.actorRepository.deleteById(id);
-        return true;
-
-    }
-
-
 
 
 }

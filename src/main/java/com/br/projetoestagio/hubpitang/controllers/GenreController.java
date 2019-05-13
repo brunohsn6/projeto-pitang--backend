@@ -82,19 +82,7 @@ public class GenreController {
         }
     }
 
-    @PostMapping(path = "/bypassinsert")
-    public ResponseEntity<?> bypassInsert(){
-        try{
 
-            this.initialization.parseGenres();
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        }catch (Exception e){
-            System.out.println(e.getCause());
-            System.out.println(e.getStackTrace());
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-
-    }
 
 
 }

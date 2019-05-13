@@ -89,7 +89,7 @@ public class MovieController {
     public ResponseEntity<?> delete (@PathVariable Long id){
         if(this.movieRepository.existsById(id)){
             try{
-                //this.movieRepository.deleteById(id);
+                this.movieRepository.deleteById(id);
                 return new ResponseEntity<>(HttpStatus.OK);
             }catch (Exception e){
                 return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
@@ -98,24 +98,6 @@ public class MovieController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
-
-
-    @PostMapping(path = "/bypassinsert")
-    public ResponseEntity<?> bypassInsert(){
-        try{
-
-            this.initialization.parseMovies();
-
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        }catch (Exception e){
-            System.out.println(e.getCause());
-            System.out.println(e.getStackTrace());
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-
-    }
-
 
 
     @PostMapping(path = "/deleteById")

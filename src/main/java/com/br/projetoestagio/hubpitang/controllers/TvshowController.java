@@ -68,7 +68,7 @@ public class TvshowController {
         }
     }
 
-    @PutMapping(path = "/update")
+    @PutMapping(path = "/update/{id}")
     public ResponseEntity<?> update(@RequestBody Tvshow tvshow, @RequestParam Long id){
         try{
             Tvshow searchedDirector = this.iTvshowRepository.findTvshowById(id);
@@ -94,18 +94,5 @@ public class TvshowController {
         }
     }
 
-    @PostMapping(path = "/bypassinsert")
-    public ResponseEntity<?> bypassInsert(){
-        try{
 
-            this.initialization.parseTvshows();
-
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        }catch (Exception e){
-            System.out.println(e.getCause());
-            System.out.println(e.getStackTrace());
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-
-    }
 }
