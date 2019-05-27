@@ -21,6 +21,8 @@ public class HubPitangApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        //those methods should run only once, because its just to populate the database
+
 //        this.initialization.parseGenres();
 //        this.initialization.parseTvshows();
 //        this.initialization.parseMovies();

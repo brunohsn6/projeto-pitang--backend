@@ -509,16 +509,16 @@ public class Initialization {
     public String getHeight(String name){
 
         try{
-            String param;
-            String command;
-            param = name;
-            command = "python "+ absolutePath + param;
-            Process p = Runtime.getRuntime().exec(command);
-            p.waitFor();
-            BufferedReader bufferedReader = new BufferedReader(new FileReader("/home/bruno/IdeaProjects/hub-pitang/answer.txt"));
-            String height = bufferedReader.readLine();
-            bufferedReader.close();
-
+//            String param;
+//            String command;
+//            param = name;
+//            command = "python "+ absolutePath + param;
+//            Process p = Runtime.getRuntime().exec(command);
+//            p.waitFor();
+//            BufferedReader bufferedReader = new BufferedReader(new FileReader("/home/bruno/IdeaProjects/hub-pitang/answer.txt"));
+//            String height = bufferedReader.readLine();
+//            bufferedReader.close();
+            String height = "";
             return height;
         }catch (Exception e){
             System.out.println("An error ocurred at 'getHeight'");

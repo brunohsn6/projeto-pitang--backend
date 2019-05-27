@@ -1,5 +1,6 @@
 package com.br.projetoestagio.hubpitang.controllers;
 
+import com.br.projetoestagio.hubpitang.error.ResourceNotFoundException;
 import com.br.projetoestagio.hubpitang.models.Actor;
 import com.br.projetoestagio.hubpitang.models.Director;
 import com.br.projetoestagio.hubpitang.repositories.IActorRepository;
@@ -34,11 +35,10 @@ public class DirectorController {
     @GetMapping(path = "/{id}")
     public ResponseEntity<?> getById(@RequestParam Long id){
         try{
-            return new ResponseEntity<>(this.directorRepository.findById(id), HttpStatus.OK);
+            return new ResponseEntity<>(this.directorRepository.findDirectorById(id), HttpStatus.OK);
         }catch (Exception e){
             Logger.getLogger(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+            throw new ResourceNotFoundException("there is no director with this id!");        }
     }
 
     @GetMapping(path = "/getByFiltering")
@@ -49,7 +49,7 @@ public class DirectorController {
         }catch (Exception e){
             System.out.println(e.getStackTrace());
             System.out.println(e.getLocalizedMessage());
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            throw new ResourceNotFoundException("there is no director with this specified name!");
         }
     }
 
@@ -71,7 +71,7 @@ public class DirectorController {
 
             return new ResponseEntity<>(this.directorRepository.save(director), HttpStatus.ACCEPTED);
         }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            throw new ResourceNotFoundException("This object has an invalid bind!");
         }
     }
 

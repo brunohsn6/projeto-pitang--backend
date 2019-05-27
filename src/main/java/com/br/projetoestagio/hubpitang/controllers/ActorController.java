@@ -1,5 +1,6 @@
 package com.br.projetoestagio.hubpitang.controllers;
 
+import com.br.projetoestagio.hubpitang.error.ResourceNotFoundException;
 import com.br.projetoestagio.hubpitang.models.Actor;
 import com.br.projetoestagio.hubpitang.models.Movie;
 import com.br.projetoestagio.hubpitang.models.Person;
@@ -44,7 +45,7 @@ public class ActorController {
             return new ResponseEntity<>(this.actorRepository.findActorById(id), HttpStatus.OK);
         }catch (Exception e){
             Logger.getLogger(e.getMessage());
-            return new ResponseEntity<>("there is no actor with this id!", HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("there is no actor with this id!");
         }
     }
 
@@ -57,7 +58,7 @@ public class ActorController {
         }catch (Exception e){
             System.out.println(e.getStackTrace());
             System.out.println(e.getLocalizedMessage());
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            throw new ResourceNotFoundException("there is no actor with specified name!");
         }
     }
 
@@ -80,7 +81,7 @@ public class ActorController {
 
             return new ResponseEntity<>(this.actorRepository.save(actor), HttpStatus.ACCEPTED);
         }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            throw new ResourceNotFoundException("The object has an invalid bind!");
         }
     }
 

@@ -1,6 +1,7 @@
 package com.br.projetoestagio.hubpitang.controllers;
 
 
+import com.br.projetoestagio.hubpitang.error.ResourceNotFoundException;
 import com.br.projetoestagio.hubpitang.models.Tvshow;
 import com.br.projetoestagio.hubpitang.repositories.ITvshowRepository;
 import com.br.projetoestagio.hubpitang.utils.Initialization;
@@ -34,13 +35,13 @@ public class TvshowController {
         }
     }
 
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<?> getById(@RequestParam Long id){
+    @GetMapping(path = "/getById")
+    public ResponseEntity<?> getById(@RequestParam("id") Long id){
         try{
-            return new ResponseEntity<>(this.iTvshowRepository.findById(id), HttpStatus.OK);
+            return new ResponseEntity<>(this.iTvshowRepository.findTvshowById(id), HttpStatus.OK);
         }catch (Exception e){
             Logger.getLogger(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("there is no tvshow with this id!");
         }
     }
 
@@ -54,7 +55,7 @@ public class TvshowController {
         }catch (Exception e){
             System.out.println(e.getStackTrace());
             System.out.println(e.getLocalizedMessage());
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            throw new ResourceNotFoundException("there is no tvshow with those specified params!");
         }
     }
 
@@ -76,7 +77,7 @@ public class TvshowController {
 
             return new ResponseEntity<>(this.iTvshowRepository.save(tvshow), HttpStatus.ACCEPTED);
         }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            throw new ResourceNotFoundException("the object has an invalid bind!");
         }
     }
 

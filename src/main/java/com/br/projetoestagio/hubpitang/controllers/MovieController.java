@@ -1,6 +1,7 @@
 package com.br.projetoestagio.hubpitang.controllers;
 
 
+import com.br.projetoestagio.hubpitang.error.ResourceNotFoundException;
 import com.br.projetoestagio.hubpitang.models.Movie;
 import com.br.projetoestagio.hubpitang.repositories.IGenreRepository;
 import com.br.projetoestagio.hubpitang.repositories.IMovieRepository;
@@ -45,7 +46,7 @@ public class MovieController {
             return new ResponseEntity<>(this.movieRepository.findMovieById(id), HttpStatus.OK);
         }catch (Exception e){
             Logger.getLogger(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("there is no movie with this id!");
         }
     }
 
@@ -59,14 +60,15 @@ public class MovieController {
         }catch (Exception e){
             System.out.println(e.getStackTrace());
             System.out.println(e.getLocalizedMessage());
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            throw new ResourceNotFoundException("there is no movie with those specified params!");
         }
     }
 
     @PostMapping(path = "/save")
     public ResponseEntity<?> insert(@RequestBody Movie movie){
         try{
-            return new ResponseEntity<>(this.movieRepository.save(movie), HttpStatus.CREATED);
+            this.movieRepository.save(movie);
+            return new ResponseEntity<>(HttpStatus.CREATED);
         }catch (Exception e){
             Logger.getLogger(e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -81,7 +83,7 @@ public class MovieController {
             this.movieRepository.save(movie);
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            throw new ResourceNotFoundException("the object has an invalid bind!");
         }
     }
 

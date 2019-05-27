@@ -1,6 +1,7 @@
 package com.br.projetoestagio.hubpitang.controllers;
 
 
+import com.br.projetoestagio.hubpitang.error.ResourceNotFoundException;
 import com.br.projetoestagio.hubpitang.models.Genre;
 import com.br.projetoestagio.hubpitang.repositories.IGenreRepository;
 import com.br.projetoestagio.hubpitang.utils.Initialization;
@@ -36,10 +37,10 @@ public class GenreController {
     @GetMapping(path = "/{id}")
     public ResponseEntity<?> getById(@RequestParam Long id){
         try{
-            return new ResponseEntity<>(this.genreRepository.findById(id), HttpStatus.OK);
+            return new ResponseEntity<>(this.genreRepository.findGenreById(id), HttpStatus.OK);
         }catch (Exception e){
             Logger.getLogger(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("there is no genre with this id!");
         }
     }
 
@@ -61,7 +62,7 @@ public class GenreController {
 
             return new ResponseEntity<>(this.genreRepository.save(genre), HttpStatus.ACCEPTED);
         }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            throw new ResourceNotFoundException("the object has an invalid bind!");
         }
     }
 

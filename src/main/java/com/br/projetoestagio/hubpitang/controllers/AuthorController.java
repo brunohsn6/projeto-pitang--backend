@@ -1,5 +1,6 @@
 package com.br.projetoestagio.hubpitang.controllers;
 
+import com.br.projetoestagio.hubpitang.error.ResourceNotFoundException;
 import com.br.projetoestagio.hubpitang.models.Author;
 import com.br.projetoestagio.hubpitang.repositories.IAuthorRepository;
 import com.br.projetoestagio.hubpitang.utils.AuthorSpecification;
@@ -32,10 +33,10 @@ public class AuthorController {
     @GetMapping(path = "/{id}")
     public ResponseEntity<?> getById(@RequestParam Long id){
         try{
-            return new ResponseEntity<>(this.authorRepository.findById(id), HttpStatus.OK);
+            return new ResponseEntity<>(this.authorRepository.findAuthorById(id), HttpStatus.OK);
         }catch (Exception e){
             Logger.getLogger(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("there is no author with this id!");
         }
     }
 
@@ -47,8 +48,7 @@ public class AuthorController {
         }catch (Exception e){
             System.out.println(e.getStackTrace());
             System.out.println(e.getLocalizedMessage());
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
-        }
+            throw new ResourceNotFoundException("there is no author with this specified name!");        }
     }
 
     @PostMapping(path = "/save")
@@ -69,7 +69,7 @@ public class AuthorController {
 
             return new ResponseEntity<>(this.authorRepository.save(author), HttpStatus.ACCEPTED);
         }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            throw new ResourceNotFoundException("The object has an invalid bind!");
         }
     }
 
